@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import listingsData from "../data/listings.json";
 import statementData from "../data/statements.json";
 import { Listing, Submission } from "./applicationTypes";
+import { format } from "date-fns";
 
 /*\
 |* !!IMPORTANT!!
@@ -32,7 +33,7 @@ export const requestExtension = (submission: Submission) => {
     setTimeout(() => resolve({
       ...submission,
       id: uuidv4(),
-      createdAt: new Date().toString(),
+      createdAt: format(new Date(), "M/d/yyyy h:mm:ss a").toString(),
     }), 500);
   });
 };
