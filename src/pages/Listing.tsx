@@ -1,154 +1,196 @@
-import React, { ComponentProps } from "react";
-import { useParams } from "react-router-dom";
-import { Formik, Form, useField } from "formik";
-import { Box, Button, Container, Grid, Paper, TextField, Typography } from "@mui/material";
+import React, {ComponentProps} from "react";
+import {useParams} from "react-router-dom";
+import {Formik, Form, useField} from "formik";
+import {Box, Button, Container, Grid, Paper, TextField, Typography} from "@mui/material";
 
-import { selectClaimedListingById } from "../redux/listings";
-import { useAppSelector } from "../lib/useAppSelector";
-import { Submission } from "../lib/applicationTypes";
+import {selectClaimedListingById} from "../redux/listings";
+import {useAppSelector} from "../lib/useAppSelector";
+import {Address, Submission} from "../lib/applicationTypes";
 
 type AppFieldProps = {
-  label: string;
-  name: string;
+    label: string;
+    name: string;
 
-  // This line allows you to pass any styling options to the MaterialUI text
-  // field that are allowed by TextField.
-  sx?: ComponentProps<typeof TextField>["sx"];
+    // This line allows you to pass any styling options to the MaterialUI text
+    // field that are allowed by TextField.
+    sx?: ComponentProps<typeof TextField>["sx"];
 }
 
 // AppField is mostly a simple wrapper around MaterialUI's TextField, but
 // hooks into Formik. Just saves us allot of typing.
 const AppField: React.FC<AppFieldProps> = ({
-  label,
-  name,
-  sx,
-}) => {
-  const [field] = useField(name);
-  const value = field.value || "";
+                                               label,
+                                               name,
+                                               sx,
+                                           }) => {
+    const [field] = useField(name);
+    const value = field.value || "";
 
-  return (
-    <TextField
-      fullWidth
-      variant="outlined"
-      id={name}
-      label={label}
-      sx={sx}
-      {...field}
-    />
-  );
+    return (
+        <TextField
+            fullWidth
+            variant="outlined"
+            id={name}
+            label={label}
+            sx={sx}
+            {...field}
+        />
+    );
 };
 
-export default function Listing() {
-  const { id = null } = useParams();
-  const listing = useAppSelector((state) => selectClaimedListingById(state, id))
+const AppTextAreaField: React.FC<AppFieldProps> = ({
+                                               label,
+                                               name,
+                                               sx,
+                                           }) => {
+    const [field] = useField(name);
+    const value = field.value || "";
 
-  if (!listing) {
     return (
-      <Box>Listing was not found!</Box>
+        <TextField
+            fullWidth
+            multiline
+            variant="outlined"
+            id={name}
+            label={label}
+            sx={sx}
+            rows={4}
+            {...field}
+        />
     );
-  }
+};
 
-  const initialValues: Submission = {
-    listing,
-  };
 
-  return (
-    <Container sx={{ mt: 2 }}>
-      <Paper sx={{ p: 5, mt: 2 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Request An Extension For {listing.name}
-        </Typography>
+export default function Listing() {
+    const {id = null} = useParams();
+    const listing = useAppSelector((state) => selectClaimedListingById(state, id))
 
-        <Formik
-          initialValues={initialValues}
-          onSubmit={() => {}}
-        >
-          <Form>
-            <AppField label="Name" name="listing.name" />
+    if (!listing) {
+        return (
+            <Box>Listing was not found!</Box>
+        );
+    }
 
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6">
-                Mailing Address
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={3}>
-                  <AppField
-                    label="Address 1"
-                    name="listing.mailingAddress.address1"/>
-                </Grid>
-                <Grid item xs={3}>
-                  <AppField
-                    label="Address 2"
-                    name="listing.mailingAddress.address2"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <AppField
-                    label="City"
-                    name="listing.mailingAddress.city"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <AppField
-                    label="State"
-                    name="listing.mailingAddress.state"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <AppField
-                    label="Zip"
-                    name="listing.mailingAddress.zip"
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+    const initialValues: Submission = {
+        listing,
+    };
 
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6">
-                Physical Address
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={3}>
-                  <AppField
-                    label="Address 1"
-                    name="listing.physicalAddress.address1"
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <AppField
-                    label="Address 2"
-                    name="listing.physicalAddress.address2"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <AppField
-                    label="City"
-                    name="listing.physicalAddress.city"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <AppField
-                    label="State"
-                    name="listing.physicalAddress.state"
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <AppField
-                    label="Zip"
-                    name="listing.physicalAddress.zip"
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+    return (
+        <Container sx={{mt: 2}}>
+            <Paper sx={{p: 5, mt: 2}}>
+                <Typography variant="h5" sx={{mb: 2}}>
+                    Request An Extension For {listing.name}
+                </Typography>
 
-            <Box sx={{ mt: 3 }}>
-              <Button variant="contained" type="submit">
-                Submit Request
-              </Button>
-            </Box>
-          </Form>
-        </Formik>
-      </Paper>
-    </Container>
-  );
+                <Formik
+                    initialValues={initialValues}
+                    onSubmit={(values) => {}}
+                    validate={values => {
+                        const errors: { reason?: string } = {};
+                        if (!values.reason) {
+                            errors.reason = 'This field is required. Please provide a valid reason before submitting the form.';
+                        }
+                        return errors;
+                    }}
+                    validateOnChange={false}
+                    validateOnBlur={false}>
+                    {({
+                          errors,
+                          handleSubmit,
+                      }) => (
+                    <Form onSubmit={handleSubmit} >
+                        <AppField label="Name" name="listing.name"/>
+
+                        <Box sx={{mt: 3}}>
+                            <Typography variant="h6">
+                                Mailing Address
+                            </Typography>
+                            <Grid container spacing={2}>
+                                <Grid item xs={3}>
+                                    <AppField
+                                        label="Address 1"
+                                        name="listing.mailingAddress.address1"/>
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <AppField
+                                        label="Address 2"
+                                        name="listing.mailingAddress.address2"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <AppField
+                                        label="City"
+                                        name="listing.mailingAddress.city"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <AppField
+                                        label="State"
+                                        name="listing.mailingAddress.state"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <AppField
+                                        label="Zip"
+                                        name="listing.mailingAddress.zip"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Box>
+
+                        <Box sx={{mt: 3}}>
+                            <Typography variant="h6">
+                                Physical Address
+                            </Typography>
+                            <Grid container spacing={2}>
+                                <Grid item xs={3}>
+                                    <AppField
+                                        label="Address 1"
+                                        name="listing.physicalAddress.address1"
+                                    />
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <AppField
+                                        label="Address 2"
+                                        name="listing.physicalAddress.address2"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <AppField
+                                        label="City"
+                                        name="listing.physicalAddress.city"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <AppField
+                                        label="State"
+                                        name="listing.physicalAddress.state"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <AppField
+                                        label="Zip"
+                                        name="listing.physicalAddress.zip"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Box>
+
+                        <AppTextAreaField
+                            sx={{mt: 3}}
+                            label="Reason"
+                            name="reason"/>
+                        {errors.reason && <div className={'error-message'}>{errors.reason}</div>}
+
+                        <Box sx={{mt: 3}}>
+                            <Button variant="contained" type="submit">
+                                Submit Request
+                            </Button>
+                        </Box>
+                    </Form>
+                    )}
+                </Formik>
+            </Paper>
+        </Container>
+    );
 }
