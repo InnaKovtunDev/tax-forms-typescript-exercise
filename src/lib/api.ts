@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import listingsData from "../data/listings.json";
 import statementData from "../data/statements.json";
 import { Listing, Submission } from "./applicationTypes";
-import { format } from "date-fns";
+import {format} from "date-fns";
 
 /*\
 |* !!IMPORTANT!!
@@ -67,6 +67,11 @@ export const updateStatement = (updatedStatement: unknown) => {
           name: statementAsRecord.name,
           contactInformation: statementAsRecord.contactInformation,
         },
+      {
+        ...statement,
+        name: statementAsRecord.name,
+        contactInformation: statementAsRecord.contactInformation,
+      },
     ];
   }, [] as any[]);
 

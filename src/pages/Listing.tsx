@@ -1,11 +1,14 @@
 import React, {ComponentProps} from "react";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {Formik, Form, useField} from "formik";
 import {Box, Button, Container, Grid, Paper, TextField, Typography} from "@mui/material";
 
 import {selectClaimedListingById} from "../redux/listings";
 import {useAppSelector} from "../lib/useAppSelector";
 import {Address, Submission} from "../lib/applicationTypes";
+import {requestExtension} from "../lib/api";
+import { useDispatch } from "react-redux";
+import { addSubmission } from "../redux/submissions";
 
 type AppFieldProps = {
     label: string;
@@ -60,10 +63,11 @@ const AppTextAreaField: React.FC<AppFieldProps> = ({
     );
 };
 
-
 export default function Listing() {
+    const navigate = useNavigate();
     const {id = null} = useParams();
     const listing = useAppSelector((state) => selectClaimedListingById(state, id))
+    const dispatch = useDispatch();
 
     if (!listing) {
         return (
@@ -75,6 +79,15 @@ export default function Listing() {
         listing,
     };
 
+    const handleSubmit = async (values: Submission) => {
+        const result = await requestExtension(values);
+        dispatch(addSubmission(result));
+
+        setTimeout(() => {
+            navigate("/submissions");
+        }, 1000);
+    };
+
     return (
         <Container sx={{mt: 2}}>
             <Paper sx={{p: 5, mt: 2}}>
@@ -84,7 +97,7 @@ export default function Listing() {
 
                 <Formik
                     initialValues={initialValues}
-                    onSubmit={(values) => {}}
+                    onSubmit={handleSubmit}
                     validate={values => {
                         const errors: { reason?: string } = {};
                         if (!values.reason) {
